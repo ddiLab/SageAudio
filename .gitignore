@@ -1,4 +1,6 @@
 # .gitignore
 .ipynb_checkpoints/
 __pycache__/
-*.csv/
+*.csv
+*.mp3
+*.wav

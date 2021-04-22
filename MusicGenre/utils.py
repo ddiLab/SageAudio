@@ -1,5 +1,5 @@
 import dotenv
-import pydot
+#import pydot
 import requests
 import numpy as np
 import pandas as pd

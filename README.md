@@ -9,8 +9,8 @@ Simple notebooks and scripts that demonstrate various basic tasks in audio proce
 
 ## MusicGenre
 Explorations in machine learning and music information retrieval focused on the task of genre classification. Based on work by [Michaël Defferrard, et al.](https://github.com/mdeff/fma), and [Nagesh Singh Chauhan](https://www.kdnuggets.com/2020/02/audio-data-analysis-deep-learning-python-part-1.html). 03/2021 - Current project.
-- **`Genres.ipynb`** - Builds a genre classification model and makes genre predictions on user-submitted audio data.
-- **`Features.ipynb`** - Extracts audio features from a subset of the [FMA dataset](https://github.com/mdeff/fma).
+- **`Genres.ipynb`** - Builds a genre classification model and makes genre predictions on user-submitted audio data. 04/2021
+- **`Features.ipynb`** - Extracts audio features from a subset of the [FMA dataset](https://github.com/mdeff/fma). 04/2021
 
 ## Birdsong Analysis
 Further explorations in audio processing and machine learning, investigating the task of detecting and classifying bird species from birdsong audio. Future project.

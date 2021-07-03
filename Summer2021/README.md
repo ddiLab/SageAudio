@@ -4,19 +4,20 @@ Educational notebooks written for summer 2021 camp on basic ML/AI concepts and t
 
 ## Goals
 ### Finished goals:
-- 3 notebooks prototyped:
+- 3 notebooks finished:
 -   Spotify.ipynb
 -   Audio_Visualizer.ipynb
 -   Data_Explorer.ipynb
+- 1 notebook prototyped:
+-   Datasets.ipynb
 
 ### Current / future goals:
-- Clean, document, and finalize prototype notebooks
-- Prototype remaining week 1/2 notebooks
+- Finish week 2 notebook(s)
 - Begin work on week 3/4 notebooks
 
-## Files and Implementation notes
+## Implementation notes
 ### Dependencies
-The current environment (`environment.yml`) is a work in progress that hodge-podges environments and libraries I've previously used for audio projects and will be updated and cleaned up as needed. Similar to the AudioBasics and MusicGenre environments, this environment includes the Librosa library for audio feature extraction, meaning that these notebooks requre the [ffmpeg](https://www.ffmpeg.org/) tool.
+Two options are provided in `environments`, one utilizing conda and one utilizing only pip. These environment includes the Librosa library for audio feature extraction, meaning that these notebooks requre the [ffmpeg](https://www.ffmpeg.org/) tool be installed.
 
 ### Data
 #### FMA
@@ -25,14 +26,32 @@ The [Free Music Archive](https://github.com/mdeff/fma) is a dataset built by Mic
 A known issue with this data is that 3 of the tracks in the small subset are corrupted and unusable, leaving us with 7997 tracks instead of 8000. The current working solution is to ignore these three tracks and work with the less pretty and slightly unbalanced total of 7997 tracks. WE may in the future look into substituting the corrupted tracks with suitable replacements from the larger subsets of the dataset.
 
 #### Spotify
-For `Spotify.ipynb`, we utilize [a Kaggle dataset](https://www.kaggle.com/yamaerenay/spotify-dataset-19212020-160k-tracks?select=tracks.csv) which contains metadata pulled from the Spotify API for approximately ~600k songs. We are particularly interested in high-level feature data Spotify tracks, including features such as danceability, acousticness, valence, etc. for introducing students to ideas of what song features might look like and how they might relate to a song's genre. We primarily utilize `tracks.csv` and `artists.csv`.
+For `Spotify.ipynb`, we utilize [a Kaggle dataset](https://www.kaggle.com/yamaerenay/spotify-dataset-19212020-160k-tracks?select=tracks.csv) which contains metadata pulled from the Spotify API for approximately ~600k songs. We are particularly interested in high-level feature data Spotify tracks, including features such as danceability, acousticness, valence, etc. for introducing students to ideas of what song features might look like and how they might relate to a song's genre. We only utilize `tracks.csv` from this dataset.
 
-### Notebooks  
-- **`Spotify.ipynb`** (cleaning stage) - Searches a database of Spotify songs and plots various high level features tracked by Spotify for each song.
-- **`Audio_Visualizer.ipynb`** (cleaning stage) - Plots visualizations of input audio files such as waveform plot, spectrum diagram, and spectrogram.
-- **`Data_Explorer.ipynb`** (cleaning stage) - Pulls a random song from the FMA dataset, plays it, and lists basic metadata info of it.
-- **`Datasets.ipynb`** (prototyping stage) - Builds subsets of FMA dataset for students to train models on.
+#### Directory structure
+Data for these notebooks should be kept in a directory titled `data` that is structured as such:
+```
+...fma
+......(fma_small subdirectories)
+...songs
+......(audio files)
+...fma_features.csv
+...fma_tracks.csv
+...spotify.csv
+```
+The `fma` directory should contain the contents of [`fma_small.zip`.](https://os.unil.cloud.switch.ch/fma/fma_small.zip) The `songs` directory should contain audio files to be used in `Audio_Visualizer.ipynb`. `fma_features.csv` is a [file containing the extracted audio features from the fma_small set.](https://github.com/ddiLab/SageAudio/blob/main/MusicGenre/fma_small.csv). `fma_tracks.csv` is a renamed version of `tracks.csv` from [`fma_metadata.zip`.](https://os.unil.cloud.switch.ch/fma/fma_metadata.zip). `spotify.csv` is a renamed version of `tracks.csv` from the [Spotify Kaggle dataset.](https://www.kaggle.com/yamaerenay/spotify-dataset-19212020-160k-tracks?select=tracks.csv)  
 
-### Utils
+## Contents
+- **`Spotify.ipynb`** (finished) - Searches a database of Spotify songs and plots various high level features tracked by Spotify for each song.
+- **`Audio_Visualizer.ipynb`** (finished) - Plots visualizations of input audio files such as waveform plot, spectrum diagram, and spectrogram.
+- **`Data_Explorer.ipynb`** (finished) - Pulls a random song from the FMA dataset, plays it, and lists basic metadata info of it.
+- **`Datasets.ipynb`** (prototype) - Builds subsets of FMA dataset for students to train models on.
+
+### `utils`
 - Each notebook has a corresponding `.py` file in `utils/` that contains the bulk of the actual code for the given notebook.
 - **`fma.py`** - Helper functions and classes from `utils.py` in [original FMA code](https://github.com/mdeff/fma) used in navigating the FMA dataset.
+
+### `environments`
+- **`environment.yml`** - Environment code was originally written for, uses a combination of conda and pip installs. If anything breaks really hard (which it shouldn't), try using this environment over the other one.
+- **`requirements.txt`** - Environment based off of `environments.yml` that only uses pip, no conda neededd.
+

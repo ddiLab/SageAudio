@@ -67,10 +67,11 @@ def plot_song(results, Artist):
     values = values.iloc[Artist]
     titlestring = "\"" + (results.iloc[Artist, 1]).title() + "\" by " + ((results.iloc[Artist, 5])[2:-2].replace("\'", "")).title()
 
-    ax.barh(stats, values)
+    rects = ax.barh(stats, values)
     ax.invert_yaxis()
     ax.set_xlabel('Values')
     ax.set_xlim(left=0.0, right=1.0)
+    ax.bar_label(rects, fmt='%.2f', padding=3)
     ax.set_title(titlestring)
     
 def plot_double(results1, Artist1, results2, Artist2):
@@ -98,6 +99,8 @@ def plot_double(results1, Artist1, results2, Artist2):
     ax.legend()
     ax.set_xlabel('Values')
     ax.set_xlim(left=0.0, right=1.0)
+    ax.bar_label(rects1, fmt='%.2f', padding=3)
+    ax.bar_label(rects2, fmt='%.2f', padding=3)
     
 def process_query(tracks, query1, query2):
     queryresults = []

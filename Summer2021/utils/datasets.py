@@ -83,24 +83,21 @@ def trim_data(tracks):
     return tracks[d_mask]
 
 def prep_features(features, tracks):
-    #labels = features["label"]
-    #new_features = features.drop("label", axis=1)
-    #new_features.insert(1, "labels", labels)
     new_features = features.set_index(tracks.index)
     return new_features
 
-def load_tracks_and_artists():
+def load_metadata(path):
     # Load track and artist data
-    full = fma.load('data/fma/tracks.csv')
+    full = fma.load(path)
     small = full[full['set', 'subset'] <= 'small']
     artists = small['artist']
     tracks = small['track']
     trim_tracks = trim_data(tracks)
     return artists, tracks, trim_tracks
 
-def load_features(trim_tracks):
+def load_features(path, trim_tracks):
     # Load feature data
-    features = pd.read_csv('data/fma/fma_small_features.csv')
+    features = pd.read_csv(path)
     features = prep_features(features, trim_tracks)
     return features
 

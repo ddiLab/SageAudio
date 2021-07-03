@@ -21,14 +21,14 @@ warnings.filterwarnings('ignore')
 
 # ---------------------------------------------------------------
 # Data_Explorer.ipynb
-def load_tracks():
-    tracks = fma.load('data/fma/tracks.csv')
+def load_tracks(path, directory):
+    tracks = fma.load(path)
     tracks = tracks[tracks['set', 'subset'] <= 'small']
     artists = tracks['artist']
     tracks = tracks['track']
     
     # Search directory and make libraries
-    subfolders = os.listdir('data/fma/fma_small')
+    subfolders = os.listdir(directory)
     track_files = []
 
     # Load mp3 filenames
@@ -36,10 +36,10 @@ def load_tracks():
     testvar = "empty"
     for i in subfolders:
         try:
-            for j in os.listdir(f'data/fma/fma_small/{i}'):
-                track_files.append(f"data/fma/fma_small/{i}/{j}")
+            for j in os.listdir(f'{directory}{i}'):
+                track_files.append(f"{directory}{i}/{j}")
         except:
-            print(f"Skipped {i}")
+            pass
             
     return tracks, track_files, artists
     
@@ -61,4 +61,6 @@ def fma_random(tracks, track_files, artists):
     display(track_audio)
     
 def interface(tracks, track_files, artists):
-    interact_manual(fma_random, tracks=fixed(tracks), track_files=fixed(track_files), artists=fixed(artists))
+    out = interactive(fma_random, {'manual': True}, tracks=fixed(tracks), track_files=fixed(track_files), artists=fixed(artists))
+    out.children[0].description="Search"
+    display(out)

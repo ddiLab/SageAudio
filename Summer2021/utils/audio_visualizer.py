@@ -25,7 +25,7 @@ def select_options(song_waves, Song, Plot, Length):
     wave = song_waves[Song][0]
     sr = song_waves[Song][1]
     
-    if Length == "Full song":
+    if Length == "Full":
         if Plot == "Wave":
             plot_wave(wave)
         elif Plot == "Spectrum":
@@ -51,7 +51,7 @@ def select_options(song_waves, Song, Plot, Length):
             elif Plot == "Spectrogram":
                 plot_spectrogram(wave_crop) 
         else:
-            select_options(song_waves, Song, Plot, "Full song")
+            select_options(song_waves, Song, Plot, "Full")
             
 def plot_wave(wave):
     plt.figure(figsize=(18,6))
@@ -106,7 +106,7 @@ def find_songs(path):
     
 def visualizer_display(song_waves, song_names, song_box):
     plot_box = ["Wave", "Spectrum", "Spectrogram"]
-    length_box = ["Full song", "30 seconds", "5 seconds", "50 milliseconds"]
+    length_box = ["Full", "30 seconds", "5 seconds", "50 milliseconds"]
 
     song1 = widgets.Dropdown(options=song_box, description="Songs: ")
     song2 = widgets.Dropdown(options=song_box)

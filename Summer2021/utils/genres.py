@@ -101,6 +101,40 @@ def load_features(path, trim_tracks):
     features = prep_features(features, trim_tracks)
     return features
 
+def select_split():
+    x_widget = widgets.FloatSlider(min=0.1, max=1.0, step=0.1, value=0.1)
+    y_widget = widgets.FloatSlider(min=0.0, max=1.0, step=0.1, value=0.1)
+    z_widget = widgets.FloatSlider(min=0.1, max=1.0, step=0.1, value=0.1)
+
+    def update_x_range(*args):
+        x_widget.max = 1.0 - y_widget.value - z_widget.value
+    y_widget.observe(update_x_range, 'value')
+    z_widget.observe(update_x_range, 'value')
+
+    def update_y_range(*args):
+        y_widget.max = 1.0 - x_widget.value - z_widget.value
+    x_widget.observe(update_y_range, 'value')
+    z_widget.observe(update_y_range, 'value')
+
+    def update_z_range(*args):
+        z_widget.max = 1.0 - x_widget.value - y_widget.value
+    x_widget.observe(update_z_range, 'value')
+    y_widget.observe(update_z_range, 'value')
+
+    def printer(Training, Validation, Test):
+        total = Training + Validation + Test
+        print(f"Total: {total}")
+    interact(printer,Training=x_widget, Validation=y_widget, Test=z_widget);
+    
+    return x_widget, y_widget, z_widget
+    
+def select_model():
+    layer_widget = widgets.IntSlider(min=2, max=8, step=1, value=4, description="Layers")
+    epoch_widget = widgets.IntSlider(min=1, max=500, step=1, value=100, description="Epochs")
+    display(layer_widget, epoch_widget)
+    
+    return layer_widget, epoch_widget
+    
 def display_dataset(trim_tracks):
     # Run data builder
     w = interactive(build_dataset, {'manual': True}, tracks=fixed(trim_tracks),
@@ -132,7 +166,9 @@ def display_features(trim_tracks, dataset, features):
     display(z)
     return z
 
-def preprocessing(features):
+#def display_parameters(trim_tracks, dataset, features):
+
+def preprocessing(features, test_size):
     # Preprocess data for model
     GENRE_LIST = 'electronic experimental folk hip-hop instrumental international pop rock'.split()
     GENRE_CNT = 8
@@ -157,26 +193,46 @@ def preprocessing(features):
     test_data = [X_test, y_test]
     return train_data, test_data
 
-def build_model(train_data):
+def build_and_train_model(train_data):
+    model = build_model(train_data)
+    train_model(model, train_data)
+    return model
+    
+
+def build_model(train_data, size):
     GENRE_CNT = 8
     
-    # Building the model
+    # calculate layer sizes
+    sizes = np.full(size - 1, 2)
+    cnt = 0
+    for i in sizes:
+        sizes[cnt] = i**(cnt + 6)
+        cnt += 1
+
+    # build model
     model = Sequential()
-    model.add(layers.Dense(256, activation='relu', input_shape=(train_data[0].shape[1],)))
-    model.add(layers.Dense(128, activation='relu'))
-    model.add(layers.Dense(64, activation='relu'))
+    cnt -= 1
+    model.add(layers.Dense(sizes[cnt], activation='relu', input_shape=(train_data[0].shape[1],)))
+    cnt -= 1
+    while cnt >= 0:
+        model.add(layers.Dense(sizes[cnt], activation='relu'))
+        #print(sizes[cnt])
+        cnt -= 1
+        
     model.add(layers.Dense(GENRE_CNT, activation='softmax'))
     model.compile(optimizer='adam',
-              loss='sparse_categorical_crossentropy',
-              metrics=['accuracy'])
+                  loss='sparse_categorical_crossentropy',
+                  metrics=['accuracy'])
+    
     return model
 
-def train_model(model, train_data):
+def train_model(model, train_data, epochs, split):
     # Fit the model
     classifier = model.fit(train_data[0],
                     train_data[1],
-                    epochs=100,
-                    batch_size=128)
+                    epochs=epochs,
+                    batch_size=128,
+                    validation_split=split)
     
 def test_model(model, test_data):
     # Test set

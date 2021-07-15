@@ -20,7 +20,7 @@ import warnings
 warnings.filterwarnings('ignore')
 
 # -----------------------------------------------------------------
-# Datasets.ipynb
+# Genres.ipynb
 def build_dataset(tracks, electronic, experimental, folk, hiphop, instrumental, international, pop, rock):
     # Read in genre counts
     genre_counts = {"Electronic": electronic, 
@@ -52,6 +52,7 @@ def build_dataset(tracks, electronic, experimental, folk, hiphop, instrumental, 
     return new_tracks
 
 def extract_features(tracks, new_tracks, features, chroma, rmse, spectral_centroid, spectral_bandwith, spectral_rolloff, zero_crossing_rate, mfcc):
+    feature_count = int(chroma) + int(rmse) + int(spectral_centroid) + int(spectral_bandwith) + int(spectral_rolloff) + int(zero_crossing_rate) + int(mfcc)
     mask = np.array([True, chroma, rmse, spectral_centroid, spectral_bandwith, spectral_rolloff, zero_crossing_rate], dtype=bool)
 
     if mfcc:
@@ -62,7 +63,7 @@ def extract_features(tracks, new_tracks, features, chroma, rmse, spectral_centro
     mask = np.concatenate((mask, mfcc_mask))
     mask = np.append(mask, True)
     new_features = features.loc[new_tracks.index, mask]
-    display(new_features)
+    print(f"{feature_count} features extracted for {len(new_tracks)} songs.")
     return new_features
 
 def genre_check(data):
@@ -102,23 +103,26 @@ def load_features(path, trim_tracks):
     return features
 
 def select_split():
-    x_widget = widgets.FloatSlider(min=0.1, max=1.0, step=0.1, value=0.1)
-    y_widget = widgets.FloatSlider(min=0.0, max=1.0, step=0.1, value=0.1)
-    z_widget = widgets.FloatSlider(min=0.1, max=1.0, step=0.1, value=0.1)
+    x_widget = widgets.IntSlider(min=0, max=100, step=10, value=10)
+    y_widget = widgets.IntSlider(min=0, max=100, step=10, value=10)
+    z_widget = widgets.IntSlider(min=0, max=100, step=10, value=10)
 
     def update_x_range(*args):
-        x_widget.max = 1.0 - y_widget.value - z_widget.value
+        x_widget.max = 100 - y_widget.value - z_widget.value
+    x_widget.observe(update_x_range, 'value')
     y_widget.observe(update_x_range, 'value')
     z_widget.observe(update_x_range, 'value')
 
     def update_y_range(*args):
-        y_widget.max = 1.0 - x_widget.value - z_widget.value
+        y_widget.max = 100 - x_widget.value - z_widget.value
     x_widget.observe(update_y_range, 'value')
+    y_widget.observe(update_y_range, 'value')
     z_widget.observe(update_y_range, 'value')
 
     def update_z_range(*args):
-        z_widget.max = 1.0 - x_widget.value - y_widget.value
+        z_widget.max = 100 - x_widget.value - y_widget.value
     x_widget.observe(update_z_range, 'value')
+    y_widget.observe(update_z_range, 'value')
     y_widget.observe(update_z_range, 'value')
 
     def printer(Training, Validation, Test):
@@ -131,8 +135,30 @@ def select_split():
 def select_model():
     layer_widget = widgets.IntSlider(min=2, max=8, step=1, value=4, description="Layers")
     epoch_widget = widgets.IntSlider(min=1, max=500, step=1, value=100, description="Epochs")
-    display(layer_widget, epoch_widget)
     
+    def update_layer_range(*args):
+        if epoch_widget.value > 350:
+            layer_widget.max = 5
+        elif epoch_widget.value > 100:
+            layer_widget.max = 6
+        elif epoch_widget.value > 25:
+            layer_widget.max = 7
+        else:
+            layer_widget.max = 8
+    epoch_widget.observe(update_layer_range, 'value')
+
+    def update_epoch_range(*args):
+        if layer_widget.value == 8:
+            epoch_widget.max = 25
+        elif layer_widget.value == 7:
+            epoch_widget.max = 100
+        elif layer_widget.value == 6:
+            epoch_widget.max = 350
+        else:
+            epoch_widget.max = 500
+    layer_widget.observe(update_epoch_range, 'value')
+    display(layer_widget, epoch_widget)
+   
     return layer_widget, epoch_widget
     
 def display_dataset(trim_tracks):
@@ -166,7 +192,10 @@ def display_features(trim_tracks, dataset, features):
     display(z)
     return z
 
-#def display_parameters(trim_tracks, dataset, features):
+def param_check(training, validation, test):
+    check = training + validation + test
+    if check != 100:
+        raise Exception(f"Error: Training, validation, and test splits must add up to 100. Current total: {check}")
 
 def preprocessing(features, test_size):
     # Preprocess data for model
@@ -188,7 +217,7 @@ def preprocessing(features, test_size):
     X = scaler.fit_transform(np.array(data.iloc[:, :-1], dtype = float))
 
     # Dividing data into training and testing set
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=(test_size / 100))
     train_data = [X_train, y_train]
     test_data = [X_test, y_test]
     return train_data, test_data
@@ -232,7 +261,7 @@ def train_model(model, train_data, epochs, split):
                     train_data[1],
                     epochs=epochs,
                     batch_size=128,
-                    validation_split=split)
+                    validation_split=(split / 100))
     
 def test_model(model, test_data):
     # Test set

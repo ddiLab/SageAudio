@@ -8,7 +8,7 @@ import IPython.display as ipy
 import os
 import pathlib
 import librosa
-from utils import fma
+import fma
 import random
 from librosa import display as lbdis
 from sklearn.model_selection import train_test_split

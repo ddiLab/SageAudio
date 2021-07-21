@@ -8,7 +8,7 @@ import IPython.display as ipy
 import os
 import pathlib
 import librosa
-from utils import fma
+import fma
 import random
 from librosa import display as lbdis
 from sklearn.model_selection import train_test_split
@@ -164,14 +164,14 @@ def select_model():
 def display_dataset(trim_tracks):
     # Run data builder
     w = interactive(build_dataset, {'manual': True}, tracks=fixed(trim_tracks),
-                electronic=widgets.IntSlider(min=0, max=999),
-                experimental=widgets.IntSlider(min=0, max=999),
-                folk=widgets.IntSlider(min=0, max=1000),
-                hiphop=widgets.IntSlider(min=0, max=1000),
-                instrumental=widgets.IntSlider(min=0, max=1000),
-                international=widgets.IntSlider(min=0, max=1000),
-                pop=widgets.IntSlider(min=0, max=1000),
-                rock=widgets.IntSlider(min=0, max=999));
+                electronic=widgets.IntSlider(min=0, max=999, value=999),
+                experimental=widgets.IntSlider(min=0, max=999, value=999),
+                folk=widgets.IntSlider(min=0, max=1000, value=1000),
+                hiphop=widgets.IntSlider(min=0, max=1000, value=1000),
+                instrumental=widgets.IntSlider(min=0, max=1000, value=1000),
+                international=widgets.IntSlider(min=0, max=1000, value=1000),
+                pop=widgets.IntSlider(min=0, max=1000, value=1000),
+                rock=widgets.IntSlider(min=0, max=999, value=999));
     w.children[8].description="Build dataset"
     display(w)
     return w
@@ -192,12 +192,24 @@ def display_features(trim_tracks, dataset, features):
     display(z)
     return z
 
+def select_dataset():
+    dataset_widget = widgets.Dropdown(
+        options=[(1, 'Electronic'), (2, 'Experimental'), 
+                 (3, 'Folk'), (4, 'Hip-Hop'),
+                 (5, 'Instrumental'), (6, 'International'),
+                 (7, 'Pop'), (8, 'Rock'), (9, 'Full')],
+        #value=1,
+        description='Dataset: ')
+    
+    display(dataset_widget)
+    return dataset_widget
+
 def param_check(training, validation, test):
     check = training + validation + test
     if check != 100:
         raise Exception(f"Error: Training, validation, and test splits must add up to 100. Current total: {check}")
 
-def preprocessing(features, test_size):
+def preprocessing(features, genre):
     # Preprocess data for model
     GENRE_LIST = 'electronic experimental folk hip-hop instrumental international pop rock'.split()
     GENRE_CNT = 8
@@ -217,10 +229,25 @@ def preprocessing(features, test_size):
     X = scaler.fit_transform(np.array(data.iloc[:, :-1], dtype = float))
 
     # Dividing data into training and testing set
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=(test_size / 100))
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+    
+    # Build list of indeces w/ target genre
+    if genre != "Full":
+        cnt = 0
+        mask = np.ones(len(y_train), dtype=bool)
+
+        for i in y_train.flat:
+            if i != (encoder.transform([genre]))[0]:
+                mask[cnt] = False
+            cnt += 1
+    
+        X_train = X_train[mask]
+        y_train = y_train[mask]
+    
     train_data = [X_train, y_train]
     test_data = [X_test, y_test]
-    return train_data, test_data
+    return train_data, test_data, encoder
+
 
 def build_and_train_model(train_data):
     model = build_model(train_data)
@@ -255,16 +282,49 @@ def build_model(train_data, size):
     
     return model
 
-def train_model(model, train_data, epochs, split):
+def train_model(model, train_data):
     # Fit the model
     classifier = model.fit(train_data[0],
                     train_data[1],
-                    epochs=epochs,
-                    batch_size=128,
-                    validation_split=(split / 100))
+                    epochs=100,
+                    batch_size=128)
     
-def test_model(model, test_data):
-    # Test set
-    print('Results:')
+def test_model(model, test_data, encoder):
+    # Run predictions
+    print('Overall Results:')
     test_scores = model.evaluate(test_data[0], test_data[1], verbose=2)
     predictions = model.predict(test_data[0][:])
+
+    # Save predictions
+    results = []
+    nums = []
+    for i in predictions:
+        highest = 0
+        cnt = 0
+        for j in i:
+            if j > i[highest]:
+                highest = cnt
+            cnt += 1
+        results.append(highest)
+        nums.append(i[highest])
+
+    # Mark successes and failures
+    success = []
+    cnt = 0
+    for i in results:
+        if i == test_data[1][cnt]:
+            success.append("SUCCESS")
+        else:
+            success.append("FAILURE")
+        cnt += 1
+    
+    # Print individual results
+    results = encoder.inverse_transform(results)
+    print('\nPredictions:')
+    cnt = 0
+    while cnt < 10:
+        print('Song {}'.format(cnt + 1))
+        print('Prediction: {}'.format(results[cnt]))
+        print('Confidence: {:.2%}'.format(nums[cnt]))
+        print('Result: {}\n'.format(success[cnt]))
+        cnt += 1

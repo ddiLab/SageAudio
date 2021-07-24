@@ -8,7 +8,7 @@ import IPython.display as ipy
 import os
 import pathlib
 import librosa
-from utils import fma
+import fma
 import random
 from librosa import display as lbdis
 from sklearn.model_selection import train_test_split
@@ -51,7 +51,7 @@ def build_dataset(tracks, electronic, experimental, folk, hiphop, instrumental, 
     genre_check(new_tracks)
     return new_tracks
 
-def extract_features(tracks, new_tracks, features, chroma, rmse, spectral_centroid, spectral_bandwith, spectral_rolloff, zero_crossing_rate, mfcc):
+def extract_features(features, chroma, rmse, spectral_centroid, spectral_bandwith, spectral_rolloff, zero_crossing_rate, mfcc):
     feature_count = int(chroma) + int(rmse) + int(spectral_centroid) + int(spectral_bandwith) + int(spectral_rolloff) + int(zero_crossing_rate) + int(mfcc)
     mask = np.array([True, chroma, rmse, spectral_centroid, spectral_bandwith, spectral_rolloff, zero_crossing_rate], dtype=bool)
 
@@ -62,8 +62,8 @@ def extract_features(tracks, new_tracks, features, chroma, rmse, spectral_centro
         
     mask = np.concatenate((mask, mfcc_mask))
     mask = np.append(mask, True)
-    new_features = features.loc[new_tracks.index, mask]
-    print(f"{feature_count} features extracted for {len(new_tracks)} songs.")
+    new_features = features.loc[:, mask]
+    #print(f"{feature_count} features extracted for {len(new_tracks)} songs.")
     return new_features
 
 def genre_check(data):
@@ -102,25 +102,51 @@ def load_features(path, trim_tracks):
     features = prep_features(features, trim_tracks)
     return features
 
-def select_split():
-    x_widget = widgets.IntSlider(min=0, max=100, step=10, value=10)
-    y_widget = widgets.IntSlider(min=0, max=100, step=10, value=10)
-    z_widget = widgets.IntSlider(min=0, max=100, step=10, value=10)
+'''
+def select_split(genres):
+    training = genres[0].value + genres[1].value + genres[2].value + genres[3].value + genres[4].value + genres[5].value + genres[6].value + genres[7].value
+    
+    x_widget = widgets.IntSlider(min=0, max=7996, step=10, value=10)
+    y_widget = widgets.IntSlider(min=0, max=7996, step=10, value=10)
 
     def update_x_range(*args):
-        x_widget.max = 100 - y_widget.value - z_widget.value
+        x_widget.max = 7996 - y_widget.value
+    x_widget.observe(update_x_range, 'value')
+    y_widget.observe(update_x_range, 'value')
+
+    def update_y_range(*args):
+        y_widget.max = 7996 - x_widget.value
+    x_widget.observe(update_y_range, 'value')
+    y_widget.observe(update_y_range, 'value')
+
+    def printer(Validation, Test):
+        valtest = Validation + Test
+        if valtest
+        print(f"Total: {total}")
+    interact(printer,Validation=x_widget, Test=y_widget);
+    
+    return x_widget, y_widget, z_widget
+'''
+
+def select_split():
+    x_widget = widgets.IntSlider(min=1, max=7995, step=1, value=1)
+    y_widget = widgets.IntSlider(min=1, max=7995, step=1, value=0)
+    z_widget = widgets.IntSlider(min=1, max=7995, step=1, value=1)
+
+    def update_x_range(*args):
+        x_widget.max = 7997 - y_widget.value - z_widget.value
     x_widget.observe(update_x_range, 'value')
     y_widget.observe(update_x_range, 'value')
     z_widget.observe(update_x_range, 'value')
 
     def update_y_range(*args):
-        y_widget.max = 100 - x_widget.value - z_widget.value
+        y_widget.max = 7997 - x_widget.value - z_widget.value
     x_widget.observe(update_y_range, 'value')
     y_widget.observe(update_y_range, 'value')
     z_widget.observe(update_y_range, 'value')
 
     def update_z_range(*args):
-        z_widget.max = 100 - x_widget.value - y_widget.value
+        z_widget.max = 7997 - x_widget.value - y_widget.value
     x_widget.observe(update_z_range, 'value')
     y_widget.observe(update_z_range, 'value')
     y_widget.observe(update_z_range, 'value')
@@ -176,6 +202,59 @@ def display_dataset(trim_tracks):
     display(w)
     return w
 
+def select_dataset(training):
+    a=widgets.IntSlider(min=0, max=999)
+    b=widgets.IntSlider(min=0, max=999)
+    c=widgets.IntSlider(min=0, max=1000)
+    d=widgets.IntSlider(min=0, max=1000)
+    e=widgets.IntSlider(min=0, max=1000)
+    f=widgets.IntSlider(min=0, max=1000)
+    g=widgets.IntSlider(min=0, max=1000)
+    h=widgets.IntSlider(min=0, max=999) 
+    
+    def printer(electronic, experimental, folk, hiphop, instrumental, international, pop, rock):
+        total = electronic + experimental + folk + hiphop + instrumental + international + pop + rock
+        if total > training:
+            print("WARNING!!! TOTAL EXCEEDED TRAINING CAPACITY ({}) - PLEASE LOWER SONG COUNTS".format(training))
+        print("TOTAL: {} / {}".format(total, training))
+        
+    print("Training set size: {}".format(training))
+    interact(printer, electronic=a, 
+             experimental=b, 
+             folk=c, 
+             hiphop=d, 
+             instrumental=e, 
+             international=f, 
+             pop=g, 
+             rock=h)
+    
+    return a, b, c, d, e, f, g, h
+        
+def select_features():
+    a=widgets.Checkbox(value=False)
+    b=widgets.Checkbox(value=False)
+    c=widgets.Checkbox(value=False)
+    d=widgets.Checkbox(value=False)
+    e=widgets.Checkbox(value=False)
+    f=widgets.Checkbox(value=False)
+    g=widgets.Checkbox(value=False)
+    
+    def printer(chroma, rmse, spectral_centroid, spectral_bandwidth, spectral_rolloff, zero_crossing_rate, mfcc):
+        cnt = chroma + rmse + spectral_centroid + spectral_bandwidth + spectral_rolloff + zero_crossing_rate + mfcc
+        print("Extracting {} features.".format(cnt))
+    
+    interact(printer, chroma=a,
+             rmse=b,
+             spectral_centroid=c,
+             spectral_bandwidth=d,
+             spectral_rolloff=e,
+             zero_crossing_rate=f,
+             mfcc=g)
+             
+    return a, b, c, d, e, f, g
+
+
+
 def display_features(trim_tracks, dataset, features):
     # Run feature selector
     z = interactive(extract_features, {'manual': True},
@@ -197,16 +276,17 @@ def param_check(training, validation, test):
     if check != 100:
         raise Exception(f"Error: Training, validation, and test splits must add up to 100. Current total: {check}")
 
-def preprocessing(features, test_size):
+def preprocessing(feature_data, track_data, genres, features, training_size, validation_size, test_size):
     # Preprocess data for model
     GENRE_LIST = 'electronic experimental folk hip-hop instrumental international pop rock'.split()
     GENRE_CNT = 8
 
-    # Load features and trim filename column
-    #data = pd.read_csv(FEATURES)
-    data = features
+    # Load features and trim filename and unneeded feature columns
+    data = extract_features(feature_data, features[0].value, features[1].value, features[2].value, features[3].value,
+                            features[4].value, features[5].value, features[6].value)
     data = data.drop(['filename'],axis=1)
-
+    
+    
     # Encoding the labels
     genre_list = data.iloc[:, -1]
     encoder = LabelEncoder()
@@ -216,11 +296,40 @@ def preprocessing(features, test_size):
     scaler = StandardScaler()
     X = scaler.fit_transform(np.array(data.iloc[:, :-1], dtype = float))
 
-    # Dividing data into training and testing set
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=(test_size / 100))
+    # Subset out test and validation sets
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=(test_size.value + validation_size.value))
+    
+    if validation_size != 0:
+        X_test, X_val, y_test, y_val = train_test_split(X_test, y_test, test_size=validation_size.value)
+    else:
+        X_val, y_val = _, _
+    
+    # Trim training set
+    genre_cnts = { "Electronic": genres[0].value,
+                     "Experimental": genres[1].value,
+                     "Folk": genres[2].value,
+                     "Hip-Hop": genres[3].value,
+                     "Instrumental": genres[4].value,
+                     "International": genres[5].value,
+                     "Pop": genres[6].value,
+                     "Rock": genres[7].value}
+    cnt = 0
+    mask = np.ones(len(y_train), dtype=bool)
+
+    for i in y_train.flat:
+        if genre_cnts[(encoder.inverse_transform([i]))[0]] > 0:
+            genre_cnts[(encoder.inverse_transform([i]))[0]] -= 1
+        else:
+            mask[cnt] = False
+        cnt += 1
+    
+    X_train = X_train[mask]
+    y_train = y_train[mask]
+    
     train_data = [X_train, y_train]
+    val_data = [X_val, y_val]
     test_data = [X_test, y_test]
-    return train_data, test_data
+    return train_data, val_data, test_data, encoder
 
 def build_and_train_model(train_data):
     model = build_model(train_data)
@@ -255,16 +364,50 @@ def build_model(train_data, size):
     
     return model
 
-def train_model(model, train_data, epochs, split):
+def train_model(model, train_data, val_data, epochs):
     # Fit the model
     classifier = model.fit(train_data[0],
                     train_data[1],
                     epochs=epochs,
                     batch_size=128,
-                    validation_split=(split / 100))
+                    validation_data=(val_data[0], val_data[1]))
     
-def test_model(model, test_data):
-    # Test set
-    print('Results:')
+def test_model(model, test_data, encoder):
+    # Run predictions
+    print('Overall Results:')
     test_scores = model.evaluate(test_data[0], test_data[1], verbose=2)
     predictions = model.predict(test_data[0][:])
+
+    # Save predictions
+    results = []
+    nums = []
+    for i in predictions:
+        highest = 0
+        cnt = 0
+        for j in i:
+            if j > i[highest]:
+                highest = cnt
+            cnt += 1
+        results.append(highest)
+        nums.append(i[highest])
+
+    # Mark successes and failures
+    success = []
+    cnt = 0
+    for i in results:
+        if i == test_data[1][cnt]:
+            success.append("SUCCESS")
+        else:
+            success.append("FAILURE")
+        cnt += 1
+    
+    # Print individual results
+    results = encoder.inverse_transform(results)
+    print('\nPredictions:')
+    cnt = 0
+    while cnt < 10:
+        print('Song {}'.format(cnt + 1))
+        print('Prediction: {}'.format(results[cnt]))
+        print('Confidence: {:.2%}'.format(nums[cnt]))
+        print('Result: {}\n'.format(success[cnt]))
+        cnt += 1

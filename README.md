@@ -14,8 +14,12 @@ Explorations in machine learning and music information retrieval focused on the 
 - **`Features.ipynb`** - Extracts audio features from a subset of the [FMA dataset](https://github.com/mdeff/fma). 04/2021
 
 ## Summer2021
-Educational notebooks written for summer 2021 camp on basic ML/AI concepts and their applications in scientific research. Notebooks are written to be as clean and accessible as possible for high schools students who may not have any programming experience, heavily utilizing the [ipywidgets](https://pypi.org/project/ipywidgets/) library. Various notebooks written during spring 2021 for AudioBasics and MusicGenre have been adapted here. 06/2021 - Current project.
+Educational notebooks written for summer 2021 camp on basic ML/AI concepts and their applications in scientific research. Notebooks are written to be as clean and accessible as possible for high schools students who may not have any programming experience, heavily utilizing the [ipywidgets](https://pypi.org/project/ipywidgets/) library. Various notebooks written during spring 2021 for AudioBasics and MusicGenre have been adapted here. 06/2021 - 09/2021.
 - **`Spotify.ipynb`** - Searches a database of Spotify songs and plots various high level features tracked by Spotify for each song. In cleaning stage. 06/2021
 - **`Audio_Visualizer.ipynb`** - Plots visualizations of input audio files such as waveform plot, spectrum diagram, and spectrogram. In cleaning stage. 06/2021
 - **`Data_Explorer.ipynb`** - Pulls a random song from the FMA dataset, plays it, and lists basic metadata info of it. In cleaning stage. 06/2021
 - **`Datasets.ipynb`** - Builds subsets of FMA dataset for students to train models on. In prototyping stage. 06/2021
+
+## EdgeAudio
+Notebooks written to explore audio problems in edge computing environments. 08/2021 - Current project.
+- **`EventRecorder.ipynb`** - Edge audio recorder using PyWaggle that detects sound. Prototype. 12/2021

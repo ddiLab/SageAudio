@@ -1,5 +1,5 @@
 # Sage Audio  
-Projects, experiments, and examples involving audio processing, analysis, visualization, and classification using machine learning. Maintained by Emily Brown.
+Projects, experiments, and examples involving audio processing, analysis, visualization, and classification using machine learning.
   
 ## AudioBasics  
 Simple notebooks and scripts that demonstrate various basic tasks in audio processing and visualization. 01/2021 - 02/2021.  

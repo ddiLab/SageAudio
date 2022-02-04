@@ -23,3 +23,8 @@ Educational notebooks written for summer 2021 camp on basic ML/AI concepts and t
 ## EdgeAudio
 Notebooks written to explore audio problems in edge computing environments. 08/2021 - Current project.
 - **`EventRecorder.ipynb`** - Edge audio recorder using PyWaggle that detects sound. Prototype. 12/2021
+
+**Students:** Emily Brown Jacob Fitzenreider <br>
+**Mentors:** Michael Papka, Nicola Ferrier (Argonne)
+
+This material is based upon work supported by the National Science Foundation under Grant No. OAC 1935984.
